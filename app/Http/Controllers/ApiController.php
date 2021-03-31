@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use MainRepository, Validator, Auth;
+use App\Mail\WelcomeMail;
+use App\Jobs\JobWelcome;
+use MainRepository, Validator, Auth, Mail;
 
 class ApiController extends Controller
 {
@@ -141,10 +143,31 @@ class ApiController extends Controller
             ], 422);
         }
 
+        $data = MainRepository::userregister($request);
+
+        if($data){
+            // Mail::to($data->email)->send(new WelcomeMail());
+            $sendwelcome = new JobWelcome($data->email);
+            dispatch($sendwelcome);
+            return response()->json([
+                'response'      => true,
+                'message'       => "Succesful"
+            ], 200);
+        }
+
         return response()->json([
-            'response'      => true,
-            'data'          => MainRepository::userregister($request)
-        ], 200);
+            'response'      => false,
+            'message'       => "Something went wrong.."
+        ], 422);
+
+        // return response()->json([
+        //     'response'      => true,
+        //     'data'          => MainRepository::userregister($request)
+        // ], 200);
+    }
+
+    public function sendemail($email){
+        Mail::to($email)->send(new WelcomeMail());
     }
 
     public function userlogin(Request $request){
