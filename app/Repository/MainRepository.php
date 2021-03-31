@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\User;
+use Hash;
 
 class MainRepository{
     public static function insertcategory($data){
@@ -54,5 +56,25 @@ class MainRepository{
 
     public static function deleteitemviaid($id){
         return Item::where('id', $id)->delete();
+    }
+
+    public static function userregister($data){
+        return User::create([
+            'name'      => $data->name,
+            'email'     => $data->email,
+            'password'  => Hash::make($data->password)
+        ]);
+    }
+
+    public static function issuetoken($data){
+        // $token = $request->user()->createToken($request->token_name);
+        // return ['token' => $token->plainTextToken];
+        $issuetoken = $data->createToken($data->name);
+        $plaintext = $issuetoken->plainTextToken;
+
+        return [
+            $issuetoken,
+            $plaintext
+        ];
     }
 }

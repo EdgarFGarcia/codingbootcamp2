@@ -23,7 +23,7 @@ use App\Http\Controllers\ApiController;
  * Category API calls REST
  */
 Route::post('/createcategory', [ApiController::class, 'createcategory']);
-Route::get('/getcategories/{item?}', [ApiController::class, 'getcategories']);
+Route::get('/getcategories/{item?}', [ApiController::class, 'getcategories'])->middleware('auth:sanctum');
 Route::put('/editcategory/{id?}', [ApiController::class, 'editcategory']);
 Route::delete('/deletecategory/{id?}', [ApiController::class, 'deletecategory']);
 
@@ -34,3 +34,10 @@ Route::post('/createitem', [ApiController::class, 'createitem']);
 Route::get('/getitems/{item?}', [ApiController::class, 'getitems']);
 Route::put('/edititem/{id?}', [ApiController::class, 'edititem']);
 Route::delete('/deleteitem/{id?}', [ApiController::class, 'deleteitem']);
+
+/**
+ * User Related API | Token Related API
+ */
+Route::post('/userregistration', [ApiController::class, 'userregistration']);
+Route::post('/userlogin', [ApiController::class, 'userlogin']);
+Route::post('/logout', [ApiController::class, 'logout'])->middleware('auth:sanctum');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use MainRepository, Validator;
+use MainRepository, Validator, Auth;
 
 class ApiController extends Controller
 {
@@ -125,5 +125,63 @@ class ApiController extends Controller
             'response'      => true,
             'data'          => MainRepository::deleteitemviaid($id)
         ], 200);
+    }
+
+    public function userregistration(Request $request){
+        $validation = Validator::make($request->all(), [
+            'name'      => 'required|string',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|string'
+        ]);
+
+        if($validation->fails()){
+            return response()->json([
+                'response'      => false,
+                'message'       => $validation->messages()->first()
+            ], 422);
+        }
+
+        return response()->json([
+            'response'      => true,
+            'data'          => MainRepository::userregister($request)
+        ], 200);
+    }
+
+    public function userlogin(Request $request){
+
+        $validation = Validator::make($request->all(),[
+            'email'     => 'required|email',
+            'password'  => 'required|string'
+        ]);
+
+        if($validation->fails()){
+            return response()->json([
+                'response'      => false,
+                'message'       => $validation->messages()->first()
+            ], 422);
+        }
+
+        $data = Auth::attempt([
+            'email'     => $request->email,
+            'password'  => $request->password
+        ]);
+
+        if($data){
+            return response()->json([
+                'response'      => true,
+                'data'          => MainRepository::issuetoken(Auth::user())
+            ], 200);
+        }
+
+        return response()->json([
+            'response'          => false,
+            'message'           => "Something went wrong.."
+        ], 422);
+    }
+
+    public function logout(){
+        $data = Auth::user();
+        // $request->user()->currentAccessToken()->delete();
+        return $data->currentAccessToken()->delete();
     }
 }
