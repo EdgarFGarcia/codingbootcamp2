@@ -13,15 +13,17 @@ class JobWelcome implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $email;
+    protected $id;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($email)
+    public function __construct($email, $id)
     {
         //
         $this->email = $email;
+        $this->id = $id;
     }
 
     /**
@@ -32,6 +34,6 @@ class JobWelcome implements ShouldQueue
     public function handle()
     {
         //
-        app('App\Http\Controllers\ApiController')->sendemail($this->email);
+        app('App\Http\Controllers\ApiController')->sendemail($this->email, $this->id);
     }
 }

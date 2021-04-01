@@ -41,3 +41,4 @@ Route::delete('/deleteitem/{id?}', [ApiController::class, 'deleteitem']);
 Route::post('/userregistration', [ApiController::class, 'userregistration']);
 Route::post('/userlogin', [ApiController::class, 'userlogin']);
 Route::post('/logout', [ApiController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/verifyaccount/{id?}', [ApiController::class, 'verifyaccount']);

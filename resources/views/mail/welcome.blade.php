@@ -1,1 +1,1 @@
-test
+<button><a href="http://127.0.0.11/api/verifyaccount/{{$id}}">Verify Account</a></button>

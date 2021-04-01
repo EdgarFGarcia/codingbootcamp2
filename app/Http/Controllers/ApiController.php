@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Mail\WelcomeMail;
 use App\Jobs\JobWelcome;
+use Illuminate\Support\Facades\Crypt;
 use MainRepository, Validator, Auth, Mail;
 
 class ApiController extends Controller
@@ -147,7 +148,7 @@ class ApiController extends Controller
 
         if($data){
             // Mail::to($data->email)->send(new WelcomeMail());
-            $sendwelcome = new JobWelcome($data->email);
+            $sendwelcome = new JobWelcome($data->email, $data->id);
             dispatch($sendwelcome);
             return response()->json([
                 'response'      => true,
@@ -166,8 +167,33 @@ class ApiController extends Controller
         // ], 200);
     }
 
-    public function sendemail($email){
-        Mail::to($email)->send(new WelcomeMail());
+    public function sendemail($email, $id){
+        $data = Crypt::encryptString($id);
+        Mail::to($email)->send(new WelcomeMail($data));
+    }
+
+    public function verifyaccount($id = null){
+        if($id > ''){
+            $decrytedid = Crypt::decryptString($id);
+            $usertocheck = MainRepository::searchuserviaid($decrytedid);
+            if($usertocheck->email_verified_at == NULL){
+                // proceed on activating the user
+                $verifyuser = MainRepository::verifyuser($decrytedid);
+                return response()->json([
+                    'response'      => true,
+                    'message'       => "You may now proceed to login"
+                ], 200);
+            }
+            return response()->json([
+                'response'      => false,
+                'message'       => "Your Account was already verified"
+            ], 422);
+        }else{
+            return response()->json([
+                'response'      => false,
+                'message'       => "What are you doing here?"
+            ], 422);
+        }
     }
 
     public function userlogin(Request $request){
@@ -190,6 +216,14 @@ class ApiController extends Controller
         ]);
 
         if($data){
+
+            if(Auth::user()->email_verified_at == NULL){
+                return response()->json([
+                    'response'          => false,
+                    'message'           => "Your Account is not yet verified"
+                ], 422);
+            }
+
             return response()->json([
                 'response'      => true,
                 'data'          => MainRepository::issuetoken(Auth::user())

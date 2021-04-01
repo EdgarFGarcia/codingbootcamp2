@@ -77,4 +77,15 @@ class MainRepository{
             $plaintext
         ];
     }
+
+    public static function searchuserviaid($id){
+        return User::where('id', $id)->first();
+    }
+
+    public static function verifyuser($id){
+        return User::where('id', $id)
+        ->update([
+            'email_verified_at'     => date("Y-m-d H:i:s")
+        ]);
+    }
 }
